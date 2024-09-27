@@ -55,28 +55,52 @@ canvas.addEventListener('mouseup', (e) => {
 
 // Function to extend the line beyond the canvas edges
 function extendLine(start, end) {
-    // Calculate the slope and extend to the edges of the canvas
     const slope = (end.y - start.y) / (end.x - start.x);
     
-    // Extend to the left and right edges of the canvas
     const extendedStart = { x: 0, y: start.y - slope * start.x };
     const extendedEnd = { x: canvas.width, y: start.y + slope * (canvas.width - start.x) };
 
     return { extendedStart, extendedEnd };
 }
 
-// Function to draw a line on the canvas
+// Function to draw a line and color the sides on the canvas
 function drawLine(start, end) {
     const { extendedStart, extendedEnd } = extendLine(start, end);
 
-    ctx.strokeStyle = 'red';
+    // Fill the area above the line
+    
+    ctx.fillStyle = 'rgba(0, 0, 255, 0.4)'; // Semi-transparent blue
+    ctx.beginPath();
+    ctx.moveTo(extendedStart.x, extendedStart.y);
+    ctx.lineTo(extendedEnd.x, extendedEnd.y);
+    ctx.lineTo(canvas.width, extendedEnd.y);
+    ctx.lineTo(canvas.width, 0);
+    ctx.lineTo(0, 0);
+    ctx.lineTo(0, extendedStart.y);
+    ctx.closePath();
+    ctx.fill();
+
+    // Fill the area below the line
+    ctx.fillStyle = 'rgba(255, 0, 0, 0.4)'; // Semi-transparent red
+    ctx.beginPath();
+    ctx.moveTo(extendedStart.x, extendedStart.y);
+    ctx.lineTo(extendedEnd.x, extendedEnd.y);
+    ctx.lineTo(canvas.width, extendedEnd.y);
+    ctx.lineTo(canvas.width, canvas.height);
+    ctx.lineTo(0, canvas.height);
+    ctx.lineTo(0, extendedStart.y);
+    ctx.closePath();
+    ctx.fill();
+
+    // Draw the line
+    ctx.strokeStyle = 'black';
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(extendedStart.x, extendedStart.y);
     ctx.lineTo(extendedEnd.x, extendedEnd.y);
     ctx.stroke();
 }
-
+    
 // Function to calculate the dot split based on the drawn line
 function calculateSplit(start, end) {
     const { extendedStart, extendedEnd } = extendLine(start, end);
@@ -101,7 +125,15 @@ function calculateSplit(start, end) {
     const percentageAbove = (dotsAbove / total) * 100;
     const percentageBelow = (dotsBelow / total) * 100;
 
-    document.getElementById('result').innerText = `Dots Above: ${percentageAbove.toFixed(2)}%, Dots Below: ${percentageBelow.toFixed(2)}%`;
+    // Calculate the score
+    const targetAbove = 80;
+    const targetBelow = 20;
+    const diffAbove = Math.abs(percentageAbove - targetAbove);
+    const diffBelow = Math.abs(percentageBelow - targetBelow);
+    // Scale the score such that an undersplit is penalized as much as an oversplit
+    const score = 100 - (diffAbove + diffBelow) / 2;
+
+    document.getElementById('result').innerText = `Dots Above: ${percentageAbove.toFixed(2)}%, Dots Below: ${percentageBelow.toFixed(2)}%, Score: ${score.toFixed(2)}`;
 }
 
 // Initialize the game
