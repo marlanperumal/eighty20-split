@@ -127,13 +127,12 @@ function calculateSplit(start, end) {
 
     // Calculate the score
     const targetAbove = 80;
-    const targetBelow = 20;
     const diffAbove = Math.abs(percentageAbove - targetAbove);
-    const diffBelow = Math.abs(percentageBelow - targetBelow);
+    const baseScore = 100 - diffAbove
     // Scale the score such that an undersplit is penalized as much as an oversplit
-    const score = 100 - (diffAbove + diffBelow) / 2;
+    const score = ((baseScore/100)**16)*1000;
 
-    document.getElementById('result').innerText = `Dots Above: ${percentageAbove.toFixed(2)}%, Dots Below: ${percentageBelow.toFixed(2)}%, Score: ${score.toFixed(2)}`;
+    document.getElementById('result').innerText = `Dots Above: ${percentageAbove.toFixed(2)}%, Dots Below: ${percentageBelow.toFixed(2)}%, Score: ${score.toFixed(0)}`;
 }
 
 // Initialize the game
